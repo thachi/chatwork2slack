@@ -3,7 +3,7 @@ package clients.chatwork
 import java.util.Date
 
 import com.softwaremill.sttp.{HttpURLConnectionBackend, Id, SttpBackend}
-import org.json4s.CustomSerializer
+import org.json4s.{CustomSerializer, DefaultFormats, Formats}
 import org.json4s.JsonAST.{JInt, JLong, JNull}
 
 trait ChatWorkClient {
@@ -63,18 +63,13 @@ class ChatWorkClientImpl(token: String)
 
   override def room(roomid: String): RoomAPI = new RoomAPI {
     override def message(): MessageAPI = new MessageAPI {
-      override def list(force: Boolean): Either[String, Seq[Message]] = {
-        def parseMessage(a: String): Seq[Message] = {
-          import org.json4s._
-          import org.json4s.native.JsonMethods._
-          implicit val formats: Formats = DefaultFormats + ChatWorkDateSerializer
 
-          parse(a).extract[Seq[Message]]
-        }
+      override def list(force: Boolean): Either[String, Seq[Message]] = {
+        implicit val formats: Formats = DefaultFormats + ChatWorkDateSerializer
 
         val res = sttp.get(uri"$baseUrl/rooms/$roomid/messages?force=${if (force) 1 else 0}")
           .headers("X-ChatWorkToken" -> token)
-          .response(asString.map(parseMessage))
+          .response(asString.map(parseResponse[Message]))
           .send()
 
         res.body
@@ -84,21 +79,22 @@ class ChatWorkClientImpl(token: String)
 
   override def contact(): ContactAPI = new ContactAPI {
     override def list(): Either[String, Seq[Contact]] = {
-      def parseMessage(a: String): Seq[Contact] = {
-        import org.json4s._
-        import org.json4s.native.JsonMethods._
-        implicit val formats: Formats = DefaultFormats
-
-        parse(a).extract[Seq[Contact]]
-      }
+      implicit val formats: Formats = DefaultFormats
 
       val res = sttp.get(uri"$baseUrl/contacts")
         .headers("X-ChatWorkToken" -> token)
-        .response(asString.map(parseMessage))
+        .response(asString.map(parseResponse[Contact]))
         .send()
 
       res.body
     }
+  }
+
+  def parseResponse[A](a: String)(implicit formats: Formats, mf: Manifest[A]): Seq[A] = {
+    import org.json4s._
+    import org.json4s.native.JsonMethods._
+
+    parse(a).extract[Seq[A]]
   }
 }
 
