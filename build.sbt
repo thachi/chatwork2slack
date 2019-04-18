@@ -7,7 +7,7 @@ ThisBuild / organizationName := "example"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "scala-fp-learning01",
+    name := "chatwork2slack",
     libraryDependencies += scalaTest % Test,
     libraryDependencies +=  "org.json4s" %% "json4s-native" % "3.6.5",
     libraryDependencies += "com.softwaremill.sttp" %% "core" % "1.5.12"
