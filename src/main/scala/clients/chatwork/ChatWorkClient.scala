@@ -17,11 +17,10 @@ trait RoomAPI {
 }
 
 trait MessageAPI {
-
-  case class Message(body: String, send_time: Date)
-
   def list(force: Boolean = false): Either[String, Seq[Message]]
 }
+
+case class Message(body: String, send_time: Date)
 
 class ChatworkClientMock extends ChatWorkClient {
   override def room(roomid: String): RoomAPI = new RoomAPI {

@@ -12,12 +12,12 @@ trait SlackClient {
 
 trait MessageAPI {
 
-  case class Message(body: String, send_time: Date)
-
-  case class PostMessageResponse(ok: Boolean)
-
   def post(message: String): Either[String, String]
 }
+
+case class Message(body: String, send_time: Date)
+
+case class PostMessageResponse(ok: Boolean)
 
 class SlackClientMock extends SlackClient {
   override def message(str: String): MessageAPI = (message: String) => {
