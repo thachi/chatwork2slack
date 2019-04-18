@@ -14,7 +14,7 @@ class SlackClientImplTest extends FunSuite {
     channelid <- Option(System.getProperty("slack.channelid"))
       .toRight {
         //TODO:とりあえずプロパティがない場合はignoreにしている。IntegrationTestとすべき。
-        ignore("システムプロパティに'slack.token'が含まれていません。") {}
+        ignore("システムプロパティに'slack.channelid'が含まれていません。") {}
       }
   } {
     val client = new SlackClientImpl(token)
