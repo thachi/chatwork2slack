@@ -22,5 +22,11 @@ class ChatWorkClientImplTest extends FunSuite {
       val Right(messages) = client.room(roomid).message().list(force = true)
       assert(messages.nonEmpty)
     }
+
+    test("ContactAPIで一覧を取得し空でないこと") {
+      val client = new ChatWorkClientImpl(token)
+      val Right(contacts) = client.contact().list()
+      assert(contacts.nonEmpty)
+    }
   }
 }

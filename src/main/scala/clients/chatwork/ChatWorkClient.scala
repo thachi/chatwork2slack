@@ -10,11 +10,21 @@ trait ChatWorkClient {
 
   def room(roomid: String): RoomAPI
 
+  def contact(): ContactAPI
 }
 
 trait RoomAPI {
   def message(): MessageAPI
 }
+
+trait ContactAPI {
+  def list(): Either[String, Seq[Contact]]
+}
+
+case class Contact(account_id: Int,
+                   room_id: Int,
+                   name: String,
+                   chatwork_id: String)
 
 trait MessageAPI {
   def list(force: Boolean = false): Either[String, Seq[Message]]
@@ -32,6 +42,14 @@ class ChatworkClientMock extends ChatWorkClient {
           Message("こんにちは3", new Date)
         ))
     }
+  }
+
+  override def contact(): ContactAPI = new ContactAPI {
+    override def list(): Either[String, Seq[Contact]] = Right(Seq(
+      Contact(1, 1, "taro", "taro_id"),
+      Contact(2, 2, "jiro", "jiro_id"),
+      Contact(3, 3, "saburo", "saburo_id")
+    ))
   }
 }
 
@@ -61,6 +79,25 @@ class ChatWorkClientImpl(token: String)
 
         res.body
       }
+    }
+  }
+
+  override def contact(): ContactAPI = new ContactAPI {
+    override def list(): Either[String, Seq[Contact]] = {
+      def parseMessage(a: String): Seq[Contact] = {
+        import org.json4s._
+        import org.json4s.native.JsonMethods._
+        implicit val formats: Formats = DefaultFormats
+
+        parse(a).extract[Seq[Contact]]
+      }
+
+      val res = sttp.get(uri"$baseUrl/contacts")
+        .headers("X-ChatWorkToken" -> token)
+        .response(asString.map(parseMessage))
+        .send()
+
+      res.body
     }
   }
 }
