@@ -20,7 +20,7 @@ class SlackClientImplTest extends FunSuite {
     val client = new SlackClientImpl(token)
 
     test("testMessage") {
-      val Right(result) = client.message(channelid).post("こんにちは。")
+      val Right(result) = client.message().post(channelid, "こんにちは。")
 
       //TODO: 応答を解釈するようになれば修正する
       assert(result == "true")

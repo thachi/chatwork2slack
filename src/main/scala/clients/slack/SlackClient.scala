@@ -6,13 +6,13 @@ import com.softwaremill.sttp.{HttpURLConnectionBackend, Id, SttpBackend}
 
 trait SlackClient {
 
-  def message(cannelid: String): MessageAPI
+  def message(): MessageAPI
 
 }
 
 trait MessageAPI {
 
-  def post(message: String): Either[String, String]
+  def post(cannelid: String, message: String): Either[String, String]
 }
 
 case class Message(body: String, send_time: Date)
@@ -20,7 +20,7 @@ case class Message(body: String, send_time: Date)
 case class PostMessageResponse(ok: Boolean)
 
 class SlackClientMock extends SlackClient {
-  override def message(str: String): MessageAPI = (message: String) => {
+  override def message(): MessageAPI = (cannelid: String, message: String) => {
     Right(message)
   }
 }
@@ -35,8 +35,8 @@ class SlackClientImpl(token: String)
 
 
   // TODO: SlackAPIを調べて処理を書く
-  override def message(cannelid: String): MessageAPI = new MessageAPI {
-    override def post(message: String): Either[String, String] = {
+  override def message(): MessageAPI = new MessageAPI {
+    override def post(cannelid: String, message: String): Either[String, String] = {
 
       def parseMessage(a: String): String = {
         import org.json4s._
